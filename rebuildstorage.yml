@@ -1,0 +1,33 @@
+# This ansible script will stop the docker daemon and rebuild the storage. Works well for kubernetes slave nodes where the /var/lib/docker has more dumps to be cleared
+
+---
+- hosts: '{{ nodes }}'
+  tasks:
+    - name: Stop Docker
+      systemd:
+        name: docker
+        state: stopped
+    - name: Remove storage
+      file:
+        name: /var/lib/docker
+        state: absent
+    - name: Remove storage config
+      file:
+        name: /etc/sysconfig/docker-storage
+        state: absent
+    - name: Remove lv
+      lvol:
+        lv: docker-pool
+        vg: centos
+        state: absent
+        force: yes
+    - name: Rebuild storage
+      systemd:
+        name: docker-storage-setup
+        state: started
+    - name: Start Docker
+      systemd:
+        name: docker
+        state: started
+  become: true
+
