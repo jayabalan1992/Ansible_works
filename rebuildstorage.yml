@@ -3,11 +3,11 @@
 ---
 - hosts: '{{ nodes }}'
   tasks:
-    - name: Stop Docker
+    - name: Stop Docker engine
       systemd:
         name: docker
         state: stopped
-    - name: Remove storage
+    - name: Remove docker storage
       file:
         name: /var/lib/docker
         state: absent
